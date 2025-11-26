@@ -107,15 +107,13 @@ public class ClienteControllerTest {
         ClienteDto clienteGuardado = new ClienteDto(1L, "Nuevo", "Cliente", "11223344", "nuevo@test.com", "Calle Nueva 789", LocalDateTime.now());
         when(clienteService.createCliente(any(ClienteDto.class))).thenReturn(clienteGuardado);
 
-        // 2. LÓGICA DE LA PRUEBA
-        var response = clienteController.createCliente(clienteDto);
-
-        // 3. VERIFICACIÓN CON ASSERT
-        assertNotNull(response);
-        assertEquals(201, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertEquals(1L, response.getBody().getId());
-        assertEquals("Nuevo", response.getBody().getNombre());
+        // 2. LÓGICA DE LA PRUEBA usando MockMvc
+        mockMvc.perform(post("/api/clientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(clienteDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nombre").value("Nuevo"));
     }
 
     @Test
